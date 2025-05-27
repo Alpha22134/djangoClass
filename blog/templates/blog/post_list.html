@@ -13,6 +13,10 @@
     {% endif %}
       <div class="card-body">
           <div class="small text-muted">{{ p.created_at }}</div>
+          <div class="card-footer text-muted">
+              Posted on {{ p.created }} by
+              <a href="#">{{ p.author | upper }}</a>
+          </div>
           <h2 class="card-title h4">{{ p.title }}</h2>
           {% if p.hook_text %}
             <h5 class="text-muted">{{ p.hook_text }}</h5>
