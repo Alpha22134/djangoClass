@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 
     'blog',
     'single_pages',
+    'modbus'
 ]
 
 MIDDLEWARE = [
