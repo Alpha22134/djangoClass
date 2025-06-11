@@ -152,7 +152,7 @@
                             <span class="input-group-text" style="width:150%;">Coil Value</span>
                         </div>
                         <input type="text" class="form-control" placeholder="" aria-label="Value" 
-                        aria-describedby="addon-wrapping" id="read_coil_result" value="" readonly>
+                        aria-describedby="addon-wrapping" id="result_coil_result" value="" readonly>
                     </div>
 
                     <button type="button" class="btn btn-secondary btn-lg btn-block" id="read_coil">Read Coil</button>
@@ -172,7 +172,7 @@
             var cookieValue = null;
             if (document.cookie && document.cookie != '')
             {
-                var cookie = document.cookie.split(';');
+                var cookies = document.cookie.split(';');
                 for (var i = 0; i < cookies.length; i++)
                 {
                     var cookie = cookies[i].trim();
@@ -187,7 +187,7 @@
         }
 
         document.getElementById("write_register").addEventListener("click", function() {
-            var csrfToken = getCookie('carftoken');
+            var csrfToken = getCookie('csrftoken');
 
             const ipAddress = document.getElementById("ip_address").value;
             const registerAddress = document.getElementById("write_register_address").value;
@@ -214,7 +214,7 @@
         });
 
         document.getElementById("read_register").addEventListener("click", function() {
-            var csrfToken = getCookie('carftoken');
+            var csrfToken = getCookie('csrftoken');
 
             const ipAddress = document.getElementById("ip_address").value;
             const registerAddress = document.getElementById("read_register_address").value;
@@ -237,6 +237,61 @@
             };
             const data = JSON.stringify({ "mod": "readRegister", "ipAddress": ipAddress, 
             "registerAddress": registerAddress });
+            xhr.send(data);
+        });
+
+        document.getElementById("write_coil").addEventListener("click", function() {
+            var csrfToken = getCookie('csrftoken');
+
+            const ipAddress = document.getElementById("ip_address").value;
+            const coilAddress = document.getElementById("coil_address").value;
+            const coilValue = document.getElementById("coil_value").value;
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "{% url 'modbus_data' %}");
+            xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.setRequestHeader("X-CSRFToken", csrfToken); // CSRF 토큰을 요청 헤더에 추가
+            xhr.onload = function()
+            {
+                if (xhr.status === 200)
+                {
+                    var response = JSON.parse(xhr.responseText);
+                    // 응답처리
+                    document.getElementById("result_message").innerHTML = response.message
+                    console.log(response);
+                }
+            };
+            const data = JSON.stringify({ "mod": "writeCoil", "ipAddress": ipAddress, 
+            "coilAddress": coilAddress, "coilValue": coilValue});
+            xhr.send(data);
+        });
+
+        document.getElementById("read_coil").addEventListener("click", function() {
+            var csrfToken = getCookie('csrftoken');
+
+            const ipAddress = document.getElementById("ip_address").value;
+            const firstAddress = document.getElementById("first_address").value;
+            const lastAddress = document.getElementById("last_address").value;
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "{% url 'modbus_data' %}");
+            xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.setRequestHeader("X-CSRFToken", csrfToken); // CSRF 토큰을 요청 헤더에 추가
+            xhr.onload = function()
+            {
+                if (xhr.status === 200)
+                {
+                    var response = JSON.parse(xhr.responseText);
+                    // 응답처리
+                    document.getElementById("result_message").innerHTML = response.message
+                    document.getElementById("result_coil_result").value = response.coils
+                    console.log(response);
+                }
+            };
+            const data = JSON.stringify({ "mod": "readCoil", "ipAddress": ipAddress, 
+            "firstAddress": firstAddress, "lastAddress": lastAddress});
             xhr.send(data);
         });
     </script>
